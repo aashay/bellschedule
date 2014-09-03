@@ -113,12 +113,12 @@ app.get('/app', function(req, res){
         makeRequest(options, function(err, result){            
             if(!err){                
                 var data = result['data'];
-                //console.log(data);
                 res.render('schedule', {
                     'data': data.sort(function(a, b) {
                         var x = parseInt(a['data']['period']); var y = parseInt(b['data']['period']);                
                         return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-                    })
+                    }),
+                    'name': req.session.user.name
                 });
             }else{
                 console.error('Something broke: ' + err);
