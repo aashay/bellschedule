@@ -14,6 +14,14 @@ district token:
 
 
 
-curl -H 'Authorization: Bearer 4f51ccbb08b756c1361e4b0853d8b9f4c97df65a' -X GET https://api.clever.com/v1.1/students/
+curl -H 'Authorization: Bearer 4f51ccbb08b756c1361e4b0853d8b9f4c97df65a' -X GET https://api.clever.com/me
 
 
+https://clever.com/oauth/authorize?response_type=code&redirect_uri=https%3A%2F%bellschedule.herokuapp.com%2Foauth&client_id=XXX&scope=read%3Auser_id%20read%3Asis&district_id=XXXXXX
+
+
+
+
+631c186dcef0f81043cd:8a7f27db39769749371cd0eb920d1906898d8759
+
+curl -H 'Authorization: Basic NjMxYzE4NmRjZWYwZjgxMDQzY2Q6OGE3ZjI3ZGIzOTc2OTc0OTM3MWNkMGViOTIwZDE5MDY4OThkODc1OQ==' -H "Content-Type: application/json" -X POST -d @post.json https://clever.com/oauth/tokens

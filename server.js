@@ -5,13 +5,14 @@ var request = require('request');
 
 var APPURL = process.env.APPURL || 'http://bellschedule.herokuapp.com'
 
-var DISTRICTTOKEN = process.env.TOKEN || '4f51ccbb08b756c1361e4b0853d8b9f4c97df65a';
+var DISTRICTTOKEN = process.env.DISTRICTTOKEN || '4f51ccbb08b756c1361e4b0853d8b9f4c97df65a';
 var DISTRICTID = process.env.DISTRICTID || '5327a245c79f90670e001b78';
 var CLIENTID = process.env.CLIENTID || '631c186dcef0f81043cd';
-var CLIENTSECRET = process.env.CLIENTSECRET = '8a7f27db39769749371cd0eb920d1906898d8759';
+var CLIENTSECRET = process.env.CLIENTSECRET || '8a7f27db39769749371cd0eb920d1906898d8759';
 
 var APIPREFIX = 'https://api.clever.com/v1.1/'
 var OAUTHPREFIX = 'https://clever.com/oauth'
+
 
 // var globalOptions = {
 //     headers: {
@@ -25,11 +26,10 @@ app.use(session({secret: 'somekindasecret'}));
 
 var makeRequest = function (options, cb){
     request(options, function(err, response, body){
-        if(!err){
-            console.log(body);
-            var result = JSON.parse(body); 
+        if(!err){            
+
             if(response.statusCode != 200){
-                var errorMsg = result['error'];
+                var errorMsg = body['error'];
                 console.error('Non-200 status code: ', response.statusCode, ' with error ' + errorMsg);
                 cb(errorMsg);
             }else{            
@@ -46,16 +46,21 @@ app.get('/oauth', function(req, res){
     if(!req.query.code){
         res.redirect('/');
     }else{
+        var body = {
+            code: req.query.code,
+            grant_type: 'authorization_code',
+            redirect_uri: APPURL + '/oauth'
+        };
+
         var options = {
             'url': OAUTHPREFIX + '/tokens',
             'method': 'POST',
-            'json': true
+            'json': true,
+            'body': body,
+            'headers' : {
+                'Authorization': 'Basic ' + new Buffer(CLIENTID + ':' + CLIENTSECRET).toString('base64')
+            }
         }
-        var body = JSON.stringify({
-            'code': req.query.code,
-            'grant_type': 'authorization_code',
-            'redirect_uri': APPURL + '/oauth'
-        });
 
         makeRequest(options, function(err, result){
             if(!err){
