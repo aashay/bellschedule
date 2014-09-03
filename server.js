@@ -13,27 +13,22 @@ var CLIENTSECRET = process.env.CLIENTSECRET || '8a7f27db39769749371cd0eb920d1906
 var APIPREFIX = 'https://api.clever.com/v1.1/'
 var OAUTHPREFIX = 'https://clever.com/oauth'
 
-
-// var globalOptions = {
-//     headers: {
-//         'Authorization': 'Bearer ' + TOKEN
-//     }
-// };
-
 var app = express();
-app.use(serveStatic(__dirname + '/public/html'));
+app.use(serveStatic(__dirname + '/public', {
+    'index': ['/html/index.html']
+}));
+
 app.use(session({secret: 'somekindasecret'}));
 
 var makeRequest = function (options, cb){
     request(options, function(err, response, body){
         if(!err){            
-
             if(response.statusCode != 200){
                 var errorMsg = body['error'];
                 console.error('Non-200 status code: ', response.statusCode, ' with error ' + errorMsg);
                 cb(errorMsg);
             }else{            
-                cb(null, result);
+                cb(null, body);
             }
         }else{
             console.error('Something broke: ' + err);
@@ -47,24 +42,22 @@ app.get('/oauth', function(req, res){
         res.redirect('/');
     }else{
         var body = {
-            code: req.query.code,
-            grant_type: 'authorization_code',
-            redirect_uri: APPURL + '/oauth'
+            "code": req.query.code,
+            "grant_type": "authorization_code",
+            "redirect_uri": APPURL + "/oauth"
         };
 
         var options = {
             'url': OAUTHPREFIX + '/tokens',
             'method': 'POST',
-            'json': true,
-            'body': body,
+            'json': body,            
             'headers' : {
                 'Authorization': 'Basic ' + new Buffer(CLIENTID + ':' + CLIENTSECRET).toString('base64')
             }
         }
 
         makeRequest(options, function(err, result){
-            if(!err){
-                var result = JSON.parse(body);                    
+            if(!err){                
                 req.session.token = result['access_token'];
                 res.redirect('/app');
             }else{
