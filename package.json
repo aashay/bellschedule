@@ -1,0 +1,9 @@
+{
+  "name": "BellSchedule",
+  "description": "Bell Schedule demo app using Clever API",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "4.8.7"
+  }
+}
