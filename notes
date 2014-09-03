@@ -10,11 +10,12 @@ district token:
 
 4f51ccbb08b756c1361e4b0853d8b9f4c97df65a
 
+Aaron's token:
+60113c6a9431988bda229bea4da9a18b4ac02e8a
 
 
 
-
-curl -H 'Authorization: Bearer 4f51ccbb08b756c1361e4b0853d8b9f4c97df65a' -X GET https://api.clever.com/me
+curl -H 'Authorization: Bearer 60113c6a9431988bda229bea4da9a18b4ac02e8a' -X GET https://api.clever.com/sections
 
 
 https://clever.com/oauth/authorize?response_type=code&redirect_uri=https%3A%2F%bellschedule.herokuapp.com%2Foauth&client_id=XXX&scope=read%3Auser_id%20read%3Asis&district_id=XXXXXX

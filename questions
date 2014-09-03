@@ -17,12 +17,14 @@ Why do you store plaintext passwords?
 2. A lot of things return "data" blocks, and those data blocks have more "data" blocks.  Personally I would have the top level block be "result" or something less redundant ("result, links, paging" is intuitive enough, as the latter two are metadata anyway)
 
 
-
 3. "Cannot POST /v1.1/oauth/tokens" -> Not a JSON response, and also why not? Why https://clever.com/oauth/tokens ?
 
+4. /me doesn't work with /v1.1/me
 
 4.  https://clever.com/developers/docs#identity-api-sso-oauth2-flow-section
 The "readingfun" URI is malformed in the "Application Initiates" section. It should read https%3A%2F%2Freadingfun.org%2Foauth not https%3A%2F%readingfun.org%2Foauth  (needs that extra 2F in there).
 
 
+5. The biggest confusion is why the Student's bearer token has such limited access.  Accessing /sections with a student Bearer token for example should be limited to the particular student's scope (i.e. only show sections belonging to that student).  Then I realized it's because of the read:sis scope instead of the read:student scope (meh)
 
+6. GET/v1.1/sections has a "sort" parameter but GET/v1.1/students/{id}/sections does not.
