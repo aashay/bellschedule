@@ -10,7 +10,8 @@ var DISTRICTID = process.env.DISTRICTID || '5327a245c79f90670e001b78';
 var CLIENTID = process.env.CLIENTID || '631c186dcef0f81043cd';
 var CLIENTSECRET = process.env.CLIENTSECRET = '8a7f27db39769749371cd0eb920d1906898d8759';
 
-var URLPREFIX = 'https://api.clever.com/v1.1/'
+var APIPREFIX = 'https://api.clever.com/v1.1/'
+var OAUTHPREFIX = 'https://clever.com/oauth'
 
 // var globalOptions = {
 //     headers: {
@@ -46,7 +47,7 @@ app.get('/oauth', function(req, res){
         res.redirect('/');
     }else{
         var options = {
-            'url': URLPREFIX + '/oauth/tokens',
+            'url': OAUTHPREFIX + '/tokens',
             'method': 'POST',
             'json': true
         }
