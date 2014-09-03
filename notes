@@ -11,3 +11,9 @@ district token:
 4f51ccbb08b756c1361e4b0853d8b9f4c97df65a
 
 
+
+
+
+curl -H 'Authorization: Bearer 4f51ccbb08b756c1361e4b0853d8b9f4c97df65a' -X GET https://api.clever.com/v1.1/students/
+
+

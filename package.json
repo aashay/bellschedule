@@ -5,6 +5,8 @@
   "private": true,
   "dependencies": {
     "express": "4.8.7",
-    "serve-static": "1.5.3"
+    "express-session": "1.7.6",
+    "serve-static": "1.5.3",
+    "request": "2.40.0"
   }
 }

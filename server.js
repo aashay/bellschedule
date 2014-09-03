@@ -1,12 +1,80 @@
 var express = require('express');
 var serveStatic = require('serve-static');
+var session = require('express-session')
+var request = require('request');
+
+var APPURL = process.env.APPURL || 'http://bellschedule.herokuapp.com'
+
+var DISTRICTTOKEN = process.env.TOKEN || '4f51ccbb08b756c1361e4b0853d8b9f4c97df65a';
+var DISTRICTID = process.env.DISTRICTID || '5327a245c79f90670e001b78';
+var CLIENTID = process.env.CLIENTID || '631c186dcef0f81043cd';
+var CLIENTSECRET = process.env.CLIENTSECRET = '8a7f27db39769749371cd0eb920d1906898d8759';
+
+var URLPREFIX = 'https://api.clever.com/v1.1/'
+
+// var globalOptions = {
+//     headers: {
+//         'Authorization': 'Bearer ' + TOKEN
+//     }
+// };
 
 var app = express();
-
 app.use(serveStatic(__dirname + '/public/html'));
+app.use(session({secret: 'somekindasecret'}));
 
-app.get('/foo', function(req, res){
-  res.send('This is foo, great.');
+var makeRequest = function (options, cb){
+    request(options, function(err, response, body){
+        if(!err){
+            console.log(body);
+            var result = JSON.parse(body); 
+            if(response.statusCode != 200){
+                var errorMsg = result['error'];
+                console.error('Non-200 status code: ', response.statusCode, ' with error ' + errorMsg);
+                cb(errorMsg);
+            }else{            
+                cb(null, result);
+            }
+        }else{
+            console.error('Something broke: ' + err);
+            cb(err);
+        }
+    });
+};
+
+app.get('/oauth', function(req, res){        
+    if(!req.query.code){
+        res.redirect('/');
+    }else{
+        var options = {
+            'url': URLPREFIX + '/oauth/tokens',
+            'method': 'POST',
+            'json': true
+        }
+        var body = JSON.stringify({
+            'code': req.query.code,
+            'grant_type': 'authorization_code',
+            'redirect_uri': APPURL + '/oauth'
+        });
+
+        makeRequest(options, function(err, result){
+            if(!err){
+                var result = JSON.parse(body);                    
+                req.session.token = result['access_token'];
+                res.redirect('/app');
+            }else{
+                console.error('Something broke: ' + err);
+                res.status(500).send(err);
+            }
+        });        
+    }    
+});
+
+app.get('/app', function(req, res){
+    if(!req.session.token){
+        res.redirect('/');
+    }else{
+        res.send('Yay you\'re logged in, here is your session information: ' + req.session.token)    
+    }    
 });
 
 var port = parseInt(process.env.PORT) || 5000;
