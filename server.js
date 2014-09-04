@@ -29,10 +29,8 @@ var OAUTH_TOKEN_URL = 'https://clever.com/oauth/tokens'
  */
 var app = express();
 app.use(serveStatic(__dirname + '/public'));
-
 app.engine('handlebars', expressHbs());
 app.set('view engine', 'handlebars');
-
 app.use(session({secret: 'somekindasecret'}));
 //
 
@@ -59,7 +57,7 @@ var makeRequest = function (options, cb){
 };
 
 /**
- * Index.html!
+ * Homepage
  */
 app.get('/', function(req, res){
     res.render('index', {
