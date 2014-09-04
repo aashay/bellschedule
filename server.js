@@ -105,9 +105,8 @@ app.get('/oauth', function(req, res){
                     }
                 }
                 makeRequest(options, function(err, result){
-                    if(!err){
-                        var userData = result['data'];
-                        req.session.user = userData;                        
+                    if(!err){                        
+                        req.session.user = result['data'];                        
                         res.redirect('/app');
                     }else{
                         console.error('Something broke: ' + err);
