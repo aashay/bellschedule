@@ -58,7 +58,6 @@ var makeRequest = function (options, cb){
     });
 };
 
-
 /**
  * Index.html!
  */
@@ -106,6 +105,7 @@ app.get('/oauth', function(req, res){
                 }
                 makeRequest(options, function(err, result){
                     if(!err){                        
+                        //Store the user data returned from Clever in a 'user' session variable and redirect to the app
                         req.session.user = result['data'];                        
                         res.redirect('/app');
                     }else{
