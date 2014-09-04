@@ -7,7 +7,6 @@ In order to understand how to use the API, I wrote a simple demo app that uses C
 In this blog post, I'll walk you through the ins-and-outs of how to write a basic [Node.js](http://nodejs.org/) app using the Clever Identity and Data APIs.
 
 ![Poorly Styled Bell Schedule](http://f.cl.ly/items/0E3z3g0p1o3a033T1Q0W/bellschedule.png)
-<caption align="bottom">I'm probably not the best at CSS.</caption>
 
 Before we get started, some quick notes:
 
@@ -29,7 +28,6 @@ As with any Node app, you'll want to `mkdir` a new project (I called mine `bells
 ```
 mkdir bellschedule
 cd bellschedule
-
 ```
 
 I'm going to use a pretty simple `package.json` with the following dependencies: 
@@ -291,7 +289,7 @@ A few things are important to note with the options and body passed to the initi
 
 * This must be a `POST` request
 * The `redirect_uri` needs to be the same as the uri on our site that handles the oauth flow (in our case, http://APP_URL/oauth).
-* For the initial OAuth flow, we must use `Basic` Authorization and pass in a base64 encoding of CLIENT_ID:CLIENTSECRET.
+* For the initial OAuth flow, we must use `Basic` Authorization and pass in a base64 encoding of `CLIENT_ID:CLIENTSECRET`.
 
 Finally, we'll make one more request to `/me` using the `access_token` that came from the result of the OAuth dance.  This will give us a bunch of useful user data, including the user's `id` and `name` among other things.
 
@@ -304,6 +302,8 @@ Don't forget to update your [app settings](https://account.clever.com/) with you
 One of the reasons we need to store user data in a local session is due to the scopes I'm using for my application.  In particular, I'm using the `read:sis` and `read:user_id` scopes.  Had Clever granted me the `read:student` scope, using the student Bearer token would've been enough to get additional data.  Since we're using the `read:sis` scope, we'll use our `DISTRICT_TOKEN` to get data on our user's behalf (since each session has unique user data at this point).
 
 Hop on over to [Clever's API Explorer](https://clever.com/developers/docs/explorer) to poke around at the various data endpoints.
+
+### Getting a schedule
 
 Since our end goal is to display a student's or teacher's class schedule (sections), the endpoints we care about are [/v1.1/teachers/{id}/sections](https://clever.com/developers/docs/explorer#endpoint_teachers_teachers_id_sections) and [/v1.1/students/{id}/sections](https://clever.com/developers/docs/explorer#endpoint_students_students_id_sections).
 
@@ -359,8 +359,12 @@ Notice that crafty `url` construction? This will make sure that we can pull down
 
 Finally, our app needs some pages to display.  Rather than embed the handlebar templates here, feel free to [hop over to Github](https://github.com/aashay/bellschedule) and check them out.
 
+Once you've deployed your final code, visit your app's site and you should be presented with a "Log in with Clever" button:
 
+![Log in with Clever](http://cl.ly/XNGG/bellschedulelogin.png)
 
+After logging in with valid student or teacher credentials, you should be redirected to an appropriate schedule. Awesome!
 
+![Hooray](http://i.imgur.com/05KljcF.gif)
 
-
+I hope this has been a useful tutorial, and as always, if you have any questions, [feel free to drop me a line](https://twitter.com/aashay).
