@@ -128,6 +128,15 @@ app.get('/app', function(req, res){
     }    
 });
 
+app.get('/logout', function(req, res){
+    if(!req.session.user){
+        res.redirect('/');  //If we're not logged in, redirect to the homepage
+    }else{
+        delete req.session.user;
+        res.redirect('/');
+    }    
+});
+
 app.listen(PORT, function() {
   console.log('Bell Schedule now running on port ' + PORT);
 });

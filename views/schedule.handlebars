@@ -23,12 +23,9 @@
         font-size: 36pt;
     }
     
-    #footer {
-        clear: both;
+    #logout {
         position: relative;
-        z-index: 10;
-        height: 3em;
-        margin-top: -3em;
+        margin-right: 10px;
     }
 
     </style>    
@@ -36,7 +33,7 @@
 <body>
     <div id="main">
         
-        <div id="schedule">
+        <div id="schedule">        
         Schedule for {{name.last}}, {{name.first}}
         <table border='1'>
             <tbody>
@@ -53,9 +50,9 @@
             </tbody>            
         </table>
         </div>
+    <div id="logout"><a href='/logout'>Logout</a></div>
     </div>
-    <div id="footer">Stuff</div>
-
+    
 </body>
 </html>
 
