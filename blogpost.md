@@ -61,7 +61,7 @@ bellschedule
 
 ### Server.js
 
-Let's create a basic Hello World `server.js` and choose [Handlebars](http://handlebarsjs.com/) as a templating engine (I like Handlebars but you can use a different one) just to make sure we're up and running.  We'll also use the `serve-static` middleware to server static content.
+Let's create a basic Hello World `server.js` and choose [Handlebars](http://handlebarsjs.com/) as a template engine (I like Handlebars but you can use a different one) just to make sure we're up and running.  We'll also use the `serve-static` middleware to server static content.
 
 ```
 /**
@@ -211,7 +211,7 @@ app.listen(PORT, function() {
 });
 ```
 
-The constant variables are initialized first with `process.env` variables (if they exist, i.e. if you're running in production on Heroku) but it's good to hardcode fallbacks for local development.  Just make sure not to check in your production keys to github!
+The constant variables are initialized first with `process.env` variables (if they exist, i.e. if you're running in production on Heroku) but it's good to hardcode fallbacks for local development.  Just make sure not to check in your production keys to Github!
 
 Here's the breakdown of our newly added constants:
 
@@ -347,7 +347,7 @@ app.get('/app', function(req, res){
 Notice that crafty `url` construction? This will make sure that we can pull down schedules for either students or teachers, regardless of user type.  Here are some other things to pay attention to:
 
 * The `Authorization` header now users a `Bearer` token with the `DISTRICT_TOKEN` which has global access to district information.
-* Clever returns a data block with an initial key of `data` for most responses, but each `data` block is an array that contains objects that contain additional `data` keys.  This will be more obvious when you look at the handlehbar templates.
+* Clever returns a data block with an initial key of `data` for most responses, but each `data` block is an array that contains objects that contain additional `data` keys.  This will be more obvious when you look at the Handlebar templates.
 * As of writing this blog post, Clever does not support passing in a `sort` parameter to `/v1.1/teachers/{id}/sections` or `/v1.1/students/{id}/sections` (unlike the `/v1.1/sections` endpoint) so I chose to implement a sorting function to sort `data` by `period` but you're welcome to omit that and simply pass in `'data': data,`
 
 
