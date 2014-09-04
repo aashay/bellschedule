@@ -1,10 +1,17 @@
+/**
+ * Dependencies
+ */
 var express = require('express');
 var serveStatic = require('serve-static');
 var expressHbs = require('express-handlebars');
 
 var session = require('express-session')
 var request = require('request');
+//
 
+/**
+ * Useful Constants
+ */
 var PORT = parseInt(process.env.PORT) || 5000;
 var APP_URL = process.env.APP_URL || 'http://localhost:' + PORT;
 
@@ -15,7 +22,11 @@ var CLIENT_SECRET = process.env.CLIENT_SECRET || '8a7f27db39769749371cd0eb920d19
 
 var API_PREFIX = 'https://api.clever.com'
 var OAUTH_TOKEN_URL = 'https://clever.com/oauth/tokens'
+//
 
+/**
+ * App and middleware
+ */
 var app = express();
 app.use(serveStatic(__dirname + '/public'));
 
@@ -23,7 +34,13 @@ app.engine('handlebars', expressHbs());
 app.set('view engine', 'handlebars');
 
 app.use(session({secret: 'somekindasecret'}));
+//
 
+/**
+ * A helper function to make external REST requests.
+ * @param {hash} option - options hash passed to the request lib
+ * @param {function} cb - A callback function with err, body as params
+ */
 var makeRequest = function (options, cb){
     request(options, function(err, response, body){
         if(!err){            
@@ -41,6 +58,10 @@ var makeRequest = function (options, cb){
     });
 };
 
+
+/**
+ * Index.html!
+ */
 app.get('/', function(req, res){
     res.render('index', {
         'redirect_uri': encodeURIComponent(APP_URL + '/oauth'),
@@ -49,6 +70,9 @@ app.get('/', function(req, res){
     });
 });
 
+/**
+ * OAuth 2.0 endpoint
+ */
 app.get('/oauth', function(req, res){        
     if(!req.query.code){
         res.redirect('/');
@@ -98,11 +122,14 @@ app.get('/oauth', function(req, res){
     }    
 });
 
+/**
+ * The main app!
+ */
 app.get('/app', function(req, res){
     if(!req.session.user){
         res.redirect('/');  //If we're not logged in, redirect to the homepage
     }else{
-        var userType = req.session.user.type + 's'; //students vs teachers
+        var userType = req.session.user.type + 's'; //studentS vs teacherS
         var options = {
             'url': API_PREFIX + '/v1.1/' + userType + '/' + req.session.user.id + '/sections',
             'json': true,            
@@ -128,6 +155,9 @@ app.get('/app', function(req, res){
     }    
 });
 
+/**
+ * A simple logout route.
+ */
 app.get('/logout', function(req, res){
     if(!req.session.user){
         res.redirect('/');  //If we're not logged in, redirect to the homepage
@@ -137,6 +167,9 @@ app.get('/logout', function(req, res){
     }    
 });
 
+/**
+ * Fire up the server!
+ */
 app.listen(PORT, function() {
   console.log('Bell Schedule now running on port ' + PORT);
 });
