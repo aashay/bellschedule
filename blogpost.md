@@ -1,34 +1,30 @@
 # Building a Basic App with the Clever API
 
-So you're ready to write your first [Clever](https://clever.com) application, but you're not sure where to start?
+I recently talked to the good folks at [Clever](https://clever.com) about their platform for modern learning software, and decided to experiment a bit with their API.
 
 In order to understand how to use the API, I wrote a simple demo app that uses Clever's Instant Login feature to let teachers and students log in using their Clever credentials and view a simple table containing classes, sorted by period.
 
-In this blog post, I'll walk you through the ins-and-outs of how to write a basic [Node.js](http://nodejs.org/) app using the Clever Identity and Data APIs.
+In this blog post, I'll walk you through some of the lessons I learned while writing the app, including the ins-and-outs of how to write a basic [Node.js](http://nodejs.org/) app using the Clever Identity and Data APIs.
 
 ![Poorly Styled Bell Schedule](http://f.cl.ly/items/0E3z3g0p1o3a033T1Q0W/bellschedule.png)
 
-Before we get started, some quick notes:
+Before we get started, some quick notes/caveats:
 
 * If you haven't set up a [Clever Developer Account](https://clever.com/developers/signup) and created an app, make sure to contact Clever and have that set up first.
 * This tutorial assumes that you have basic knowledge of Node.js/JavaScript and have already set up Node on your machine.  If you haven't, go ahead and get it set up now (or, just follow along if Node's not your thing).
-* The Node.js ecosystem has dozens of frameworks and hundreds of modules to choose from.  For the sake of simplicity, I've chosen to use good ol' fashioned [Express](http://expressjs.com/).  I've also decided to avoid using useful modules such as [Passport](http://passportjs.org/) so that I can show the Clever Login workflow in more detail.
-* I've decided to use [Heroku](https://heroku.com) to deploy my code.  You're welcome to deploy elsewhere, but this tutorial will assume some basic knowledge of the Heroku platform.
+* The Node.js ecosystem has dozens of frameworks and hundreds of modules to choose from.  For the sake of simplicity, I've chosen to use good ol' fashioned [Express](http://expressjs.com/).  I've also decided to avoid using useful modules such as [Passport](http://passportjs.org/) so that I can show the Clever Instant Login workflow in more detail.
+* I've decided to use [Heroku](https://heroku.com) to deploy my code.  You're welcome to deploy elsewhere, but this tutorial will assume you're up and running with Heroku.
+* All of the code was written using a "hackathon" style (no tests, no modules, etc) for time purposes.  Feel free to reorganize/refactor as you see fit.
 
 ## The Demo
 
-You can visit a live demo of the app here: [http://bellschedule.herokuapp.com/oauth](http://bellschedule.herokuapp.com/oauth)
+You can visit a live demo of the app here: [http://bellschedule.herokuapp.com](http://bellschedule.herokuapp.com)
 
 
 ## The Setup
 
 ### Dependencies
-As with any Node app, you'll want to `mkdir` a new project (I called mine `bellschedule`) and run `npm install` to pull in dependencies from a `package.json` file:
-
-```
-mkdir bellschedule
-cd bellschedule
-```
+As with any Node app, you'll want to `mkdir` a new project (I called mine `bellschedule`) and run `npm install` to pull in dependencies from a `package.json` file.
 
 I'm going to use a pretty simple `package.json` with the following dependencies: 
 
@@ -49,11 +45,11 @@ I'm going to use a pretty simple `package.json` with the following dependencies:
 
 ```
 
-Of particular interest is the [`request`](https://github.com/mikeal/request) dependency, which we'll use to make REST requests to Clever's API.  If you'd like to use a different REST client library (or use raw http, if you're into that kind of thing), feel free.
+Of particular interest is the [`request`](https://github.com/mikeal/request) dependency, which we'll use to make REST requests to Clever's API.  You're welcome to use a different REST client library (or use raw http, if you're into that kind of thing).
 
 Drop the above `package.json` into your `bellschedule` directory and run `npm install` to install the dependencies.
 
-You'll also want to make a few directories in your project to serve up things like static content and views.  My directory structure (not including `node_modules` )looks like this:
+You'll also want to make a few directories in your project to serve up things like static content and views.  My directory structure (not including `node_modules` ) looks like this:
 
 ```
 bellschedule
@@ -65,7 +61,7 @@ bellschedule
 
 ### Server.js
 
-Let's create a basic Hello World `server.js` and choose [Handlebars](http://handlebarsjs.com/) as a templating engine (feel free to use a different one) just to make sure we're up and running.  We'll also use the `serve-static` middleware to server static content.
+Let's create a basic Hello World `server.js` and choose [Handlebars](http://handlebarsjs.com/) as a templating engine (I like Handlebars but you can use a different one) just to make sure we're up and running.  We'll also use the `serve-static` middleware to server static content.
 
 ```
 /**
@@ -117,7 +113,7 @@ Go ahead and `git push heroku master` your code to make sure everything is worki
 
 Now that we've got a basic app running, let's walk through the flow of the Clever Identity API.
 
-[Clever's Identity API](https://clever.com/developers/docs#identity-api-sso-instant-login) is built using the [OAuth2](http://oauth.net/2/) standard.  If you're not familiar with OAuth2, feel free to read up on it, but know that as with any OAuth2 implementation, there's going to be a bit of a "dance" involved.
+[Clever's Identity API](https://clever.com/developers/docs#identity-api-sso-instant-login) is built using the [OAuth2](http://oauth.net/2/) standard.  If you're not familiar with OAuth2, please do read up on it, but know that as with any OAuth2 implementation, there's going to be a bit of a "dance" involved.
 
 ![Not this kind of dance](http://i.imgur.com/jsm0x2c.gif)
 
@@ -355,7 +351,25 @@ Notice that crafty `url` construction? This will make sure that we can pull down
 * As of writing this blog post, Clever does not support passing in a `sort` parameter to `/v1.1/teachers/{id}/sections` or `/v1.1/students/{id}/sections` (unlike the `/v1.1/sections` endpoint) so I chose to implement a sorting function to sort `data` by `period` but you're welcome to omit that and simply pass in `'data': data,`
 
 
-## The Final Touch
+## The Final Touches
+
+I went ahead and created a basic `/logout` route that destroys session information.  It's important to note that Clever doesn't provide any real facility to log users out: if a user comes back and clicks the Log In With Clever button, they'll be logged in right away (however, the logout functionality will prevent people from visiting routes that require authorization such as `/app`). 
+
+Here's what that looks like:
+
+```
+/**
+ * A simple logout route.
+ */
+app.get('/logout', function(req, res){
+    if(!req.session.user){
+        res.redirect('/');  //If we're not logged in, redirect to the homepage
+    }else{
+        delete req.session.user;
+        res.redirect('/');
+    }    
+});
+```
 
 Finally, our app needs some pages to display.  Rather than embed the handlebar templates here, feel free to [hop over to Github](https://github.com/aashay/bellschedule) and check them out.
 
@@ -367,4 +381,4 @@ After logging in with valid student or teacher credentials, you should be redire
 
 ![Hooray](http://i.imgur.com/05KljcF.gif)
 
-I hope this has been a useful tutorial, and as always, if you have any questions, [feel free to drop me a line](https://twitter.com/aashay).
+I hope this has been a useful tutorial, and as always, if you have any questions, [please do drop me a line](https://twitter.com/aashay).
