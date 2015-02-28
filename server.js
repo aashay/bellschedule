@@ -15,8 +15,8 @@ var request = require('request');
 var PORT = parseInt(process.env.PORT) || 5000;
 var APP_URL = process.env.APP_URL || 'http://localhost:' + PORT;
 
-var CLIENT_ID = process.env.CLIENT_ID || '631c186dcef0f81043cd';
-var CLIENT_SECRET = process.env.CLIENT_SECRET || '8a7f27db39769749371cd0eb920d1906898d8759';
+var CLIENT_ID = process.env.CLIENT_ID;
+var CLIENT_SECRET = process.env.CLIENT_SECRET;
 
 var API_PREFIX = 'https://api.clever.com'
 var OAUTH_TOKEN_URL = 'https://clever.com/oauth/tokens'
