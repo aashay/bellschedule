@@ -26,16 +26,17 @@
     #logout {
         position: relative;
         margin-right: 10px;
+        text-align: right;
     }
 
     </style>    
 </head>
 <body>
-    <div id="main">
-        
+    <div id="logout"><a href='/logout'>Logout</a></div>
+    <div id="main">        
         <div id="schedule">        
-        Schedule for {{name.last}}, {{name.first}}
-        <table border='1'>
+        Schedule for {{name.last}}, {{name.first}} <br/><br/>
+        <table border='1' align='center'>
             <tbody>
                 <tr>
                     <th>Class Name</th>
@@ -49,8 +50,7 @@
                 {{/each}}
             </tbody>            
         </table>
-        </div>
-    <div id="logout"><a href='/logout'>Logout</a></div>
+        </div>    
     </div>
     
 </body>
