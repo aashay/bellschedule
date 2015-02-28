@@ -15,13 +15,13 @@ var request = require('request');
 var PORT = parseInt(process.env.PORT) || 5000;
 var APP_URL = process.env.APP_URL || 'http://localhost:' + PORT;
 
-var DISTRICT_TOKEN = process.env.DISTRICT_TOKEN || '4f51ccbb08b756c1361e4b0853d8b9f4c97df65a';
-var DISTRICT_ID = process.env.DISTRICT_ID || '5327a245c79f90670e001b78';
 var CLIENT_ID = process.env.CLIENT_ID || '631c186dcef0f81043cd';
 var CLIENT_SECRET = process.env.CLIENT_SECRET || '8a7f27db39769749371cd0eb920d1906898d8759';
 
 var API_PREFIX = 'https://api.clever.com'
 var OAUTH_TOKEN_URL = 'https://clever.com/oauth/tokens'
+
+var DISTRICT_DATA = {};
 //
 
 /**
@@ -50,21 +50,37 @@ var makeRequest = function (options, cb){
                 cb(null, body);
             }
         }else{
-            console.error('Something broke: ' + err);
+            console.error('Something broke: ' + err);            
             cb(err);
         }
     });
 };
 
+//Load a map of district IDs and corresponding tokens.
+var options = {
+    'url': OAUTH_TOKEN_URL + '/?owner_type=district',
+    'method': 'GET',        
+    'headers' : {
+        'Authorization': 'Basic ' + new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64')
+    }
+}
+makeRequest(options, function(err, result){
+    var districts = JSON.parse(result)['data'];
+    for(var i =0; i < districts.length; i++){                        
+        var id = districts[i]['owner']['id'];
+        var token = districts[i]['access_token'];
+        DISTRICT_DATA[id] = token;
+    }
+});
+
 /**
- * Homepage
+ * Homepage #544982fbc7da940010000036
  */
 app.get('/', function(req, res){
     res.render('index', {
         'redirect_uri': encodeURIComponent(APP_URL + '/oauth'),
-        'client_id': CLIENT_ID,
-        'district_id': DISTRICT_ID
-    });
+        'client_id': CLIENT_ID        
+    });    
 });
 
 /**
@@ -90,21 +106,20 @@ app.get('/oauth', function(req, res){
         }
 
         makeRequest(options, function(err, result){
-            if(!err){                
-                //If we had read:student scope, it would be handy to store the user's access token
-                //in their session.  However, since we only have read:sis scope, we'll make another request
-                //to get the user data and store that in their session for future requests.
+            if(!err){                                
+                var token = result['access_token'];
                 var options = {
                     'url': API_PREFIX + '/me',
                     'json': true,            
                     'headers' : {
-                        'Authorization': 'Bearer ' + result['access_token']
+                        'Authorization': 'Bearer ' + token
                     }
                 }
                 makeRequest(options, function(err, result){
                     if(!err){                        
                         //Store the user data returned from Clever in a 'user' session variable and redirect to the app
-                        req.session.user = result['data'];                        
+                        req.session.user = result['data'];
+                        req.session.token = token;
                         res.redirect('/app');
                     }else{
                         console.error('Something broke: ' + err);
@@ -126,14 +141,15 @@ app.get('/app', function(req, res){
     if(!req.session.user){
         res.redirect('/');  //If we're not logged in, redirect to the homepage
     }else{
-        var userType = req.session.user.type + 's'; //studentS vs teacherS
+        var userType = req.session.user.type + 's'; //studentS vs teacherS        
         var options = {
             'url': API_PREFIX + '/v1.1/' + userType + '/' + req.session.user.id + '/sections',
             'json': true,            
             'headers' : {
-                'Authorization': 'Bearer ' + DISTRICT_TOKEN
+                'Authorization': 'Bearer ' + DISTRICT_DATA[req.session.user.district]
             }
         }
+        
         makeRequest(options, function(err, result){            
             if(!err){                
                 var data = result['data'];
