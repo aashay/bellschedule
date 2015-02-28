@@ -70,6 +70,7 @@ makeRequest(options, function(err, result){
         var id = districts[i]['owner']['id'];
         var token = districts[i]['access_token'];
         DISTRICT_DATA[id] = token;
+        console.log(DISTRICT_DATA);
     }
 });
 
@@ -119,7 +120,9 @@ app.get('/oauth', function(req, res){
                     if(!err){                        
                         //Store the user data returned from Clever in a 'user' session variable and redirect to the app
                         req.session.user = result['data'];
+                        console.log(result['data']);
                         req.session.token = token;
+                        console.log(token);
                         res.redirect('/app');
                     }else{
                         console.error('Something broke: ' + err);
